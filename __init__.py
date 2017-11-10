@@ -12,6 +12,7 @@ validation_percentage = 10
 test_percentage = 10
 
 
+# 删除超像素文件
 def delete_superpixels_from_data():
     dir_path = os.path.join(os.curdir, dir_name)
     file_path = os.path.join(dir_path, superpixels_name)
