@@ -10,6 +10,17 @@ train_name = 'train'
 validation_name = 'validation'
 
 
+def get_nb_files(directory):
+    """获取样本个数"""
+    if not os.path.exists(directory):
+        return 0
+    cnt = 0
+    for r, dirs, files in os.walk(directory):
+        for dr in dirs:
+            cnt += len(glob.glob(os.path.join(r, dr + "/*")))
+    return cnt
+
+
 def read_img(sess, img_path):
     if os.path.exists(img_path):
         img_data = gfile.FastGFile(img_path).read()
