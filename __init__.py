@@ -192,19 +192,22 @@ if __name__ == '__main__':
 
     train_generator = train_datagen.flow_from_directory(
         train_dir,
-        target_size=(IM_WIDTH, IM_HEIGHT),
-        batch_size=batch_size, class_mode='categorical')
+        target_size=(None, None),
+        batch_size=batch_size,
+        class_mode='categorical',
+        shuffle=True)
     validation_generator = test_datagen.flow_from_directory(
         val_dir,
-        target_size=(IM_WIDTH, IM_HEIGHT),
-        batch_size=batch_size, class_mode='categorical')
+        target_size=(None, None),
+        batch_size=batch_size,
+        class_mode='categorical',
+        shuffle=True)
 
     # 定义网络框架
     base_model = InceptionV3(weights='imagenet', include_top=False)  # 预先要下载no_top模型
     model = add_new_last_layer(base_model, nb_classes)  # 从基本no_top模型上添加新层
     setup_to_transfer_learn(model, base_model)  # 冻结base_model所有层
 
-    model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
     history_tl = model.fit_generator(
         train_generator,
         nb_epoch=nb_epoch,
