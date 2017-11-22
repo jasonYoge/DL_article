@@ -2,8 +2,8 @@ from keras.applications.resnet50 import ResNet50
 from keras.applications.resnet50 import preprocess_input
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Model
-from keras.layers import Dense, GlobalAveragePooling2D
 from keras.callbacks import TensorBoard
+from keras.layers import Dense, GlobalAveragePooling2D
 from keras.optimizers import SGD
 from utils import get_nb_files
 import os
@@ -59,14 +59,8 @@ def get_file_iterator(train_dir, validation_dir):
     return train_data, validation_data
 
 
-def freeze_old_model(base_model):
-    for layer in base_model.layers:
-        layer.trainable = False
-
-
 def get_preprocessing_model():
-    model = ResNet50(weights='imagenet', include_top=False)
-    freeze_old_model(model)
+    model = ResNet50(weights=None, include_top=False)
     x = model.output
     x = GlobalAveragePooling2D()(x)
     x = Dense(FC_SIZE, activation='relu')(x)
@@ -81,12 +75,12 @@ if __name__ == '__main__':
 
     model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=['accuracy'])
     tb = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
-    history = model.fit_generator(
+    model.fit_generator(
         train_data,
         nb_epoch=nb_epoch,
         steps_per_epoch=(nb_train_examples / batch_size),
         validation_data=val_data,
         validation_steps=nb_val_examples,
         class_weight='auto',
-        callbacks = [tb]
+        callbacks=[tb]
     )
