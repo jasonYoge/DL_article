@@ -14,11 +14,11 @@ val_dir = os.path.join(os.curdir, 'validation')
 nb_train_examples = get_nb_files(train_dir)
 nb_val_examples = get_nb_files(val_dir)
 
-IM_WIDTH = 224
-IM_HEIGHT = 224
+IM_WIDTH = 500
+IM_HEIGHT = 500
 batch_size = 10
 FC_SIZE = 1024
-nb_epoch = 1
+nb_epoch = 3
 
 
 def get_file_iterator(train_dir, validation_dir):
@@ -80,7 +80,7 @@ if __name__ == '__main__':
         nb_epoch=nb_epoch,
         steps_per_epoch=(nb_train_examples / batch_size),
         validation_data=val_data,
-        validation_steps=nb_val_examples,
+        validation_steps=(nb_val_examples / batch_size),
         class_weight='auto',
         callbacks=[tb]
     )
