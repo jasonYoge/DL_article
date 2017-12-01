@@ -159,59 +159,59 @@ def setup_to_transfer_learn(model, base_model):
 
 if __name__ == '__main__':
     # 数据预处理
-    # delete_superpixels_from_data()
-    # create_train_dir()
-    # create_validation_dir()
-    train_dir = os.path.join(os.path.curdir, 'train')
-    val_dir = os.path.join(os.path.curdir, 'validation')
-
-    nb_train_samples = get_nb_files(train_dir)
-    nb_classes = len(glob.glob(train_dir + '/*'))
-    nb_val_samples = get_nb_files(val_dir)
-    nb_epoch = int(nb_epoch)
-    batch_size = int(batch_size)
-
-    train_datagen = ImageDataGenerator(
-        preprocessing_function=preprocess_input,
-        rotation_range=30,
-        width_shift_range=0.2,
-        height_shift_range=0.2,
-        shear_range=0.2,
-        zoom_range=0.2,
-        horizontal_flip=True
-    )
-    test_datagen = ImageDataGenerator(
-        preprocessing_function=preprocess_input,
-        rotation_range=30,
-        width_shift_range=0.2,
-        height_shift_range=0.2,
-        shear_range=0.2,
-        zoom_range=0.2,
-        horizontal_flip=True
-    )
-
-    train_generator = train_datagen.flow_from_directory(
-        train_dir,
-        target_size=(None, None),
-        batch_size=batch_size,
-        class_mode='categorical',
-        shuffle=True)
-    validation_generator = test_datagen.flow_from_directory(
-        val_dir,
-        target_size=(None, None),
-        batch_size=batch_size,
-        class_mode='categorical',
-        shuffle=True)
-
-    # 定义网络框架
-    base_model = InceptionV3(weights='imagenet', include_top=False)  # 预先要下载no_top模型
-    model = add_new_last_layer(base_model, nb_classes)  # 从基本no_top模型上添加新层
-    setup_to_transfer_learn(model, base_model)  # 冻结base_model所有层
-
-    history_tl = model.fit_generator(
-        train_generator,
-        nb_epoch=nb_epoch,
-        samples_per_epoch=nb_train_samples,
-        validation_data=validation_generator,
-        nb_val_samples=nb_val_samples,
-        class_weight='auto')
+    delete_superpixels_from_data()
+    create_train_dir()
+    create_validation_dir()
+    # train_dir = os.path.join(os.path.curdir, 'train')
+    # val_dir = os.path.join(os.path.curdir, 'validation')
+    #
+    # nb_train_samples = get_nb_files(train_dir)
+    # nb_classes = len(glob.glob(train_dir + '/*'))
+    # nb_val_samples = get_nb_files(val_dir)
+    # nb_epoch = int(nb_epoch)
+    # batch_size = int(batch_size)
+    #
+    # train_datagen = ImageDataGenerator(
+    #     preprocessing_function=preprocess_input,
+    #     rotation_range=30,
+    #     width_shift_range=0.2,
+    #     height_shift_range=0.2,
+    #     shear_range=0.2,
+    #     zoom_range=0.2,
+    #     horizontal_flip=True
+    # )
+    # test_datagen = ImageDataGenerator(
+    #     preprocessing_function=preprocess_input,
+    #     rotation_range=30,
+    #     width_shift_range=0.2,
+    #     height_shift_range=0.2,
+    #     shear_range=0.2,
+    #     zoom_range=0.2,
+    #     horizontal_flip=True
+    # )
+    #
+    # train_generator = train_datagen.flow_from_directory(
+    #     train_dir,
+    #     target_size=(None, None),
+    #     batch_size=batch_size,
+    #     class_mode='categorical',
+    #     shuffle=True)
+    # validation_generator = test_datagen.flow_from_directory(
+    #     val_dir,
+    #     target_size=(None, None),
+    #     batch_size=batch_size,
+    #     class_mode='categorical',
+    #     shuffle=True)
+    #
+    # # 定义网络框架
+    # base_model = InceptionV3(weights='imagenet', include_top=False)  # 预先要下载no_top模型
+    # model = add_new_last_layer(base_model, nb_classes)  # 从基本no_top模型上添加新层
+    # setup_to_transfer_learn(model, base_model)  # 冻结base_model所有层
+    #
+    # history_tl = model.fit_generator(
+    #     train_generator,
+    #     nb_epoch=nb_epoch,
+    #     samples_per_epoch=nb_train_samples,
+    #     validation_data=validation_generator,
+    #     nb_val_samples=nb_val_samples,
+    #     class_weight='auto')
