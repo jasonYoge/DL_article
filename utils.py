@@ -54,15 +54,15 @@ def rewrite_img(sess, dir_name):
             base_name = file_path[:-4]
             img_data = read_img(sess, file_path)
             flip_up_down = flip_img(sess, img_data, 'up_down')
-            print flip_up_down
+            print(flip_up_down)
             write_img(sess, flip_up_down, base_name + '_up_down.jpg')
             flip_left_right = flip_img(sess, img_data, 'left_right')
-            print flip_left_right
+            print(flip_left_right)
             write_img(sess, flip_left_right, base_name + '_left_right.jpg')
             flip_transpose = flip_img(sess, base_name, 'transpose')
-            print flip_transpose
+            print(flip_transpose)
             write_img(sess, flip_transpose, base_name + '_transpose.jpg')
-    print 'success!'
+    print('success!')
 
 
 def main(_):

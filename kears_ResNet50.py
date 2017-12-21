@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from keras.applications.resnet50 import ResNet50
 from keras.applications.resnet50 import preprocess_input
 from keras.preprocessing.image import ImageDataGenerator
@@ -14,11 +17,13 @@ val_dir = os.path.join(os.curdir, 'validation')
 nb_train_examples = get_nb_files(train_dir)
 nb_val_examples = get_nb_files(val_dir)
 
+
+
 IM_WIDTH = 500
 IM_HEIGHT = 500
 batch_size = 10
 FC_SIZE = 1024
-nb_epoch = 3
+nb_epoch = 30
 
 
 def get_file_iterator(train_dir, validation_dir):
@@ -60,7 +65,7 @@ def get_file_iterator(train_dir, validation_dir):
 
 
 def freeze_old_model(base_model):
-    for layer in base_model.layers[:-21]:
+    for layer in base_model.layers[:-15]:
         layer.trainable = False
 
 

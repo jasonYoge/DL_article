@@ -38,14 +38,14 @@ def delete_superpixels_from_data():
         file_list = glob.glob(file_path)
         for path in file_list:
             os.remove(path)
-        print 'Removed superpixel files from train directory.'
+        print('Removed superpixel files from train directory.')
 
     file_path = os.path.join(validation_dir_path, superpixels_name)
     if os.path.exists(validation_dir_path):
         file_list = glob.glob(file_path)
         for path in file_list:
             os.remove(path)
-        print 'Removed superpixel files from validation directory.'
+        print('Removed superpixel files from validation directory.')
 
 
 def create_train_dir():
@@ -80,7 +80,7 @@ def create_train_dir():
             if not os.path.exists(des_dir_name):
                 os.mkdir(des_dir_name)
             shutil.move(file_name, des_file_name)
-        print 'Create training category dir success.'
+        print('Create training category dir success.')
     else:
         raise EnvironmentError('Train CSV file path is wrong!')
 
@@ -117,7 +117,7 @@ def create_validation_dir():
             if not os.path.exists(des_dir_name):
                 os.mkdir(des_dir_name)
             shutil.move(file_name, des_file_name)
-        print 'Create validation category dir success.'
+        print('Create validation category dir success.')
     else:
         raise EnvironmentError('Validation CSV file path is wrong!')
 
