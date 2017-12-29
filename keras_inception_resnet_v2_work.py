@@ -1,9 +1,12 @@
-from keras.applications.inception_v3 import InceptionV3
-from keras.applications.inception_v3 import preprocess_input
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+from keras.applications.inception_resnet_v2 import InceptionResNetV2
+from keras.applications.inception_resnet_v2 import preprocess_input
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Model
-from keras.callbacks import TensorBoard
 from keras.layers import Dense, GlobalAveragePooling2D
+from keras.callbacks import TensorBoard
 from keras.optimizers import SGD
 from utils import get_nb_files
 import os
@@ -18,7 +21,7 @@ nb_test_examples = get_nb_files(test_dir)
 
 IM_WIDTH = 500
 IM_HEIGHT = 500
-batch_size = 5
+batch_size = 10
 FC_SIZE = 1024
 nb_epoch = 30
 
@@ -77,8 +80,14 @@ def get_file_iterator(train_dir, validation_dir, test_dir):
     return train_data, validation_data, test_data
 
 
-def get_preprocessing_model():
-    model = InceptionV3(weights=None, include_top=False)
+def freeze_old_model(base_model, base_layer):
+    for layer in base_model.layers[:base_layer]:
+        layer.trainable = False
+
+
+def get_preprocessing_model(base_layer=-20):
+    model = InceptionResNetV2(weights='imagenet', include_top=False)
+    freeze_old_model(model, base_layer)
     x = model.output
     x = GlobalAveragePooling2D()(x)
     x = Dense(FC_SIZE, activation='relu')(x)
@@ -87,40 +96,22 @@ def get_preprocessing_model():
     return model
 
 
-def run_inception_v3():
-    train_gen, val_gen, test_gen = get_file_iterator(train_dir, val_dir, test_dir)
-    model = get_preprocessing_model()
-
-    model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=['accuracy'])
-    tb = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
-    model.fit_generator(
-        train_gen,
-        nb_epoch=nb_epoch,
-        steps_per_epoch=(nb_train_examples / batch_size),
-        validation_data=val_gen,
-        validation_steps=(nb_val_examples / batch_size),
-        class_weight='auto',
-        callbacks=[tb],
-    )
-    score = model.evaluate_generator(test_gen, steps=30, max_queue_size=20)
-    print(score[1])
-    return score[1]
-
-
 if __name__ == '__main__':
     train_data, val_data, test_data = get_file_iterator(train_dir, val_dir, test_dir)
-    model = get_preprocessing_model()
+
+    model = get_preprocessing_model(-20)
 
     model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=['accuracy'])
     tb = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
-    model.fit_generator(
+    history = model.fit_generator(
         train_data,
         nb_epoch=nb_epoch,
         steps_per_epoch=(nb_train_examples / batch_size),
         validation_data=val_data,
         validation_steps=(nb_val_examples / batch_size),
         class_weight='auto',
-        callbacks=[tb],
+        callbacks=[tb]
     )
-    scoreSeg = model.evaluate_generator(test_data, steps=30, max_queue_size=20)
+    scoreSeg = model.evaluate_generator(test_data, steps=20, max_queue_size=20)
     print('Accuracy = ', scoreSeg[1])
+

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import glob
 import os
 import shutil
@@ -13,9 +14,17 @@ from keras.layers import Dense, GlobalAveragePooling2D
 from keras.preprocessing.image import ImageDataGenerator
 from keras.optimizers import SGD
 
+from keras_naked_inception_v3 import run_inception_v3
+from keras_naked_ResNet50 import run_resnet_50
+from keras_naked_VGG16 import run_vgg_16
+from keras_naked_VGG19 import run_vgg_19
+from keras_naked_x_ception import run_xception
+
 train_dir_name = 'train'
 validation_dir_name = 'validation'
+test_dir_name = 'test'
 superpixels_name = 'ISIC_*_superpixels.png'
+test_csv_name = 'ISIC-2017_Test_v2_Part3_GroundTruth.csv'
 train_csv_name = 'ISIC-2017_Training_Part3_GroundTruth.csv'
 validation_csv_name = 'ISIC-2017_Validation_Part3_GroundTruth.csv'
 data_list = {}
@@ -32,6 +41,7 @@ FC_SIZE = 1024
 def delete_superpixels_from_data():
     train_dir_path = os.path.join(os.curdir, train_dir_name)
     validation_dir_path = os.path.join(os.curdir, validation_dir_name)
+    test_dir_path = os.path.join(os.curdir, test_dir_name)
 
     file_path = os.path.join(train_dir_path, superpixels_name)
     if os.path.exists(train_dir_path):
@@ -46,6 +56,13 @@ def delete_superpixels_from_data():
         for path in file_list:
             os.remove(path)
         print('Removed superpixel files from validation directory.')
+
+    file_path = os.path.join(test_dir_path, superpixels_name)
+    if os.path.exists(test_dir_path):
+        file_list = glob.glob(file_path)
+        for path in file_list:
+            os.remove(path)
+        print('Removed superpixel files from test directory')
 
 
 def create_train_dir():
@@ -84,7 +101,6 @@ def create_train_dir():
     else:
         raise EnvironmentError('Train CSV file path is wrong!')
 
-
 def create_validation_dir():
     # 初始化图像数据字典
     # for type_name in data_type:
@@ -122,6 +138,35 @@ def create_validation_dir():
         raise EnvironmentError('Validation CSV file path is wrong!')
 
 
+def create_test_dir():
+    # 获取ground_truth数据的路径
+    dir_path = os.path.join(os.curdir, test_dir_name)
+    file_path = os.path.join(dir_path, test_csv_name)
+
+    # 构造数据字典
+    if os.path.exists(file_path):
+        csv_info = pd.read_csv(file_path)
+        for index, row in csv_info.iterrows():
+            file_name = os.path.join(dir_path, row[0] + '.jpg')
+            # 训练集
+            if row[1] == 1.0:
+                des_file_name = os.path.join(dir_path, data_type[0], row[0] + '.jpg')
+                des_dir_name = os.path.join(dir_path, data_type[0])
+            elif row[2] == 1.0:
+                des_file_name = os.path.join(dir_path, data_type[2], row[0] + '.jpg')
+                des_dir_name = os.path.join(dir_path, data_type[2])
+            else:
+                des_file_name = os.path.join(dir_path, data_type[1], row[0] + '.jpg')
+                des_dir_name = os.path.join(dir_path, data_type[1])
+
+            if not os.path.exists(des_dir_name):
+                os.mkdir(des_dir_name)
+            shutil.move(file_name, des_file_name)
+        print('Create test category dir success.')
+    else:
+        raise EnvironmentError('Test CSV file path is wrong!')
+
+
 def get_nb_files(directory):
     """获取样本个数"""
     if not os.path.exists(directory):
@@ -131,7 +176,6 @@ def get_nb_files(directory):
         for dr in dirs:
             cnt += len(glob.glob(os.path.join(r, dr + "/*")))
     return cnt
-
 
 # 添加新层
 def add_new_last_layer(base_model, nb_classes):
@@ -157,11 +201,17 @@ def setup_to_transfer_learn(model, base_model):
         layer.trainable = False
     model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
 
+
 if __name__ == '__main__':
     # 数据预处理
-    delete_superpixels_from_data()
-    create_train_dir()
-    create_validation_dir()
+    result = []
+    for i in range(2):
+        result.append(run_resnet_50())
+    print(result)
+    # delete_superpixels_from_data()
+    # create_train_dir()
+    # create_validation_dir()
+    # create_test_dir()
     # train_dir = os.path.join(os.path.curdir, 'train')
     # val_dir = os.path.join(os.path.curdir, 'validation')
     #

@@ -10,18 +10,20 @@ import os
 
 train_dir = os.path.join(os.curdir, 'train')
 val_dir = os.path.join(os.curdir, 'validation')
+test_dir = os.path.join(os.curdir, 'test')
 
 nb_train_examples = get_nb_files(train_dir)
 nb_val_examples = get_nb_files(val_dir)
+nb_test_examples = get_nb_files(test_dir)
 
 IM_WIDTH = 500
 IM_HEIGHT = 500
-batch_size = 10
+batch_size = 5
 FC_SIZE = 1024
-nb_epoch = 3
+nb_epoch = 30
 
 
-def get_file_iterator(train_dir, validation_dir):
+def get_file_iterator(train_dir, validation_dir, test_dir):
     train_gen = ImageDataGenerator(
         width_shift_range=0.2,
         height_shift_range=0.2,
@@ -32,6 +34,15 @@ def get_file_iterator(train_dir, validation_dir):
         preprocessing_function=preprocess_input,
     )
     validation_gen = ImageDataGenerator(
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        shear_range=0.2,
+        zoom_range=0.2,
+        horizontal_flip=True,
+        vertical_flip=True,
+        preprocessing_function=preprocess_input,
+    )
+    test_gen = ImageDataGenerator(
         width_shift_range=0.2,
         height_shift_range=0.2,
         shear_range=0.2,
@@ -55,8 +66,15 @@ def get_file_iterator(train_dir, validation_dir):
         class_mode='categorical',
         shuffle=True
     )
+    test_data = test_gen.flow_from_directory(
+        test_dir,
+        target_size=(IM_WIDTH, IM_HEIGHT),
+        batch_size=batch_size,
+        class_mode='categorical',
+        shuffle=True
+    )
 
-    return train_data, validation_data
+    return train_data, validation_data, test_data
 
 
 def get_preprocessing_model():
@@ -68,9 +86,28 @@ def get_preprocessing_model():
     model = Model(inputs=model.input, outputs=predictions)
     return model
 
+def run_resnet_50():
+    train_gen, val_gen, test_gen = get_file_iterator(train_dir, val_dir, test_dir)
+    model = get_preprocessing_model()
+
+    model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=['accuracy'])
+    tb = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
+    model.fit_generator(
+        train_gen,
+        nb_epoch=nb_epoch,
+        steps_per_epoch=(nb_train_examples / batch_size),
+        validation_data=val_gen,
+        validation_steps=(nb_val_examples / batch_size),
+        class_weight='auto',
+        callbacks=[tb],
+    )
+    score = model.evaluate_generator(test_gen, steps=30, max_queue_size=20)
+    print(score[1])
+    return score[1]
+
 
 if __name__ == '__main__':
-    train_data, val_data = get_file_iterator(train_dir, val_dir)
+    train_data, val_data, test_data = get_file_iterator(train_dir, val_dir, test_dir)
     model = get_preprocessing_model()
 
     model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=['accuracy'])
@@ -82,5 +119,7 @@ if __name__ == '__main__':
         validation_data=val_data,
         validation_steps=(nb_val_examples / batch_size),
         class_weight='auto',
-        callbacks=[tb]
+        callbacks=[tb],
     )
+    scoreSeg = model.evaluate_generator(test_data, steps=30, max_queue_size=20)
+    print('Accuracy = ', scoreSeg[1])

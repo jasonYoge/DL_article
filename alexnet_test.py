@@ -19,7 +19,7 @@ nb_val_examples = get_nb_files(val_dir)
 IM_WIDTH = 227
 IM_HEIGHT = 227
 batch_size = 16
-nb_epoch = 3
+nb_epoch = 30
 
 
 def get_file_iterator(train_dir, validation_dir):

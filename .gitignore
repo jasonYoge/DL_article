@@ -2,3 +2,4 @@ train/
 validation/
 tmp/
 logs/
+test/

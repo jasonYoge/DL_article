@@ -1,5 +1,5 @@
-from keras.applications.inception_v3 import InceptionV3
-from keras.applications.inception_v3 import preprocess_input
+from keras.applications.inception_resnet_v2 import InceptionResNetV2
+from keras.applications.inception_resnet_v2 import preprocess_input
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Model
 from keras.callbacks import TensorBoard
@@ -16,11 +16,11 @@ nb_train_examples = get_nb_files(train_dir)
 nb_val_examples = get_nb_files(val_dir)
 nb_test_examples = get_nb_files(test_dir)
 
-IM_WIDTH = 500
-IM_HEIGHT = 500
-batch_size = 5
+IM_WIDTH = 300
+IM_HEIGHT = 300
+batch_size = 10
 FC_SIZE = 1024
-nb_epoch = 30
+nb_epoch = 5
 
 
 def get_file_iterator(train_dir, validation_dir, test_dir):
@@ -76,9 +76,8 @@ def get_file_iterator(train_dir, validation_dir, test_dir):
 
     return train_data, validation_data, test_data
 
-
 def get_preprocessing_model():
-    model = InceptionV3(weights=None, include_top=False)
+    model = InceptionResNetV2(weights=None, include_top=False)
     x = model.output
     x = GlobalAveragePooling2D()(x)
     x = Dense(FC_SIZE, activation='relu')(x)
@@ -87,7 +86,7 @@ def get_preprocessing_model():
     return model
 
 
-def run_inception_v3():
+def run_xception():
     train_gen, val_gen, test_gen = get_file_iterator(train_dir, val_dir, test_dir)
     model = get_preprocessing_model()
 
@@ -102,7 +101,7 @@ def run_inception_v3():
         class_weight='auto',
         callbacks=[tb],
     )
-    score = model.evaluate_generator(test_gen, steps=30, max_queue_size=20)
+    score = model.evaluate_generator(test_data, steps=20, max_queue_size=20)
     print(score[1])
     return score[1]
 
@@ -122,5 +121,5 @@ if __name__ == '__main__':
         class_weight='auto',
         callbacks=[tb],
     )
-    scoreSeg = model.evaluate_generator(test_data, steps=30, max_queue_size=20)
+    scoreSeg = model.evaluate_generator(test_data, steps=20, max_queue_size=20)
     print('Accuracy = ', scoreSeg[1])
