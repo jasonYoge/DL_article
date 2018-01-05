@@ -18,7 +18,7 @@ nb_test_examples = get_nb_files(test_dir)
 
 IM_WIDTH = 500
 IM_HEIGHT = 500
-batch_size = 5
+batch_size = 2
 FC_SIZE = 1024
 nb_epoch = 30
 

@@ -18,7 +18,7 @@ nb_test_examples = get_nb_files(test_dir)
 
 IM_WIDTH = 500
 IM_HEIGHT = 500
-batch_size = 5
+batch_size = 2
 FC_SIZE = 1024
 nb_epoch = 30
 
@@ -122,4 +122,5 @@ if __name__ == '__main__':
         callbacks=[tb],
     )
     scoreSeg = model.evaluate_generator(test_data, steps=30, max_queue_size=20)
+    model.save(os.path.join(os.path.curdir, 'models', 'vgg16_model.h5'))
     print('Accuracy = ', scoreSeg[1])

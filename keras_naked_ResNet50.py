@@ -20,7 +20,7 @@ IM_WIDTH = 500
 IM_HEIGHT = 500
 batch_size = 5
 FC_SIZE = 1024
-nb_epoch = 30
+nb_epoch = 60
 
 
 def get_file_iterator(train_dir, validation_dir, test_dir):

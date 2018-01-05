@@ -25,7 +25,7 @@ IM_WIDTH = 500
 IM_HEIGHT = 500
 batch_size = 10
 FC_SIZE = 1024
-nb_epoch = 30
+nb_epoch = 60
 
 
 def get_file_iterator(train_dir, validation_dir, test_dir):
@@ -83,7 +83,7 @@ def get_file_iterator(train_dir, validation_dir, test_dir):
 
 
 def freeze_old_model(base_model):
-    for layer in base_model.layers[:-12]:
+    for layer in base_model.layers[:-18]:
         layer.trainable = False
 
 
